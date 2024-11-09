@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 typedef struct image {
-    uint8_t*** rgb_grid;
+    uint8_t** pixel_grid;  // Monochrome
     int width;
     int height;
 } IMAGE;

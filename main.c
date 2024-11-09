@@ -14,6 +14,9 @@ int main(int argc, char *argv[]) {
 
     IMAGE img;
     open_bmp_image(argv[1], &img);
+
+    apply_gaussian_blur(&img);
+    
     save_bmp_image(argv[1], argv[2], &img);
     free_image(&img);
 

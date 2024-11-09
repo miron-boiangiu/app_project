@@ -15,15 +15,10 @@ int open_bmp_image(char* file_path, IMAGE* destination) {
 
     destination->width = width;
     destination->height = height;
-    destination->rgb_grid = calloc(height, sizeof(uint8_t**));
+    destination->pixel_grid = calloc(height, sizeof(uint8_t*));
 
     for (unsigned int i = 0; i < height; i++) {
-
-        destination->rgb_grid[i] = calloc(width, sizeof(uint8_t*));
-
-        for (unsigned int j = 0; j < width; j++) {
-            destination->rgb_grid[i][j] = calloc(3, sizeof(uint8_t)); // 3 for R, G, B
-        }
+        destination->pixel_grid[i] = calloc(width, sizeof(uint8_t));
     }
 
     for (unsigned int x = 0; x < width; x++)
@@ -33,9 +28,7 @@ int open_bmp_image(char* file_path, IMAGE* destination) {
             uint8_t r, g, b;
             get_pixel_rgb(bmp, x, y, &r, &g, &b);
 
-            destination->rgb_grid[y][x][0] = r;  // Should we make this black & white only?
-            destination->rgb_grid[y][x][1] = g;
-            destination->rgb_grid[y][x][2] = b;
+            destination->pixel_grid[y][x] = 0.3* r + 0.59 * g + 0.11 * b;
         }
     }
 
@@ -55,10 +48,8 @@ int save_bmp_image(char* original_image_path, char* file_path, IMAGE* image) {
     {
         for (unsigned int y = 0; y < height; y++)
         {
-            uint8_t r = image->rgb_grid[y][x][0];
-            uint8_t g = image->rgb_grid[y][x][1];
-            uint8_t b = image->rgb_grid[y][x][2];
-            set_pixel_rgb(bmp, x, y, r, g, b);
+            uint8_t grayscale_rgb = image->pixel_grid[y][x];
+            set_pixel_rgb(bmp, x, y, grayscale_rgb, grayscale_rgb, grayscale_rgb);
         }
     }
 
@@ -67,19 +58,23 @@ int save_bmp_image(char* original_image_path, char* file_path, IMAGE* image) {
     return 0;
 }
 
+void apply_convolution(uint8_t** matrix, int width, int height, uint8_t** kernel, int k_width, int k_height) {
+
+}
+
 int apply_gaussian_blur(IMAGE* image) {
+
+
+
     return 0;
 }
 
 int free_image(IMAGE* image) {
 
     for (unsigned int i = 0; i < image->height; i++) {
-        for (unsigned int j = 0; j < image->width; j++) {
-            free(image->rgb_grid[i][j]);
-        }
-        free(image->rgb_grid[i]);
+        free(image->pixel_grid[i]);
     }
-    free(image->rgb_grid);
+    free(image->pixel_grid);
 
     return 0;
 }
