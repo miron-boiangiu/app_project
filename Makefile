@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -g
 DEPS = image_editor.h cbmp.h
 
 %.o: %.c $(DEPS)

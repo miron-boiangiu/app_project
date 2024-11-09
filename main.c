@@ -12,5 +12,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    IMAGE img;
+    open_bmp_image(argv[1], &img);
+    save_bmp_image(argv[1], argv[2], &img);
+    free_image(&img);
+
     return 0;
 }
