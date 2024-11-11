@@ -10,3 +10,4 @@ Irimia Marian
 
 # Run tests:
 
+``` make <test_small/test_medium/test_big> ```
