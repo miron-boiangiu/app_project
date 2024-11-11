@@ -15,7 +15,36 @@ Irimia Marian
 # Code analysis:
 The serial algorithm was tested based on image sizes and blur intensity, multiple times.
 
-***WSL Version*** : Wsman Shell commandLine, version 0.2.1. 
+***WSL Version*** : Wsman Shell commandLine, version 0.2.1.
+
+***Architecture***:            x86_64 
+
+***CPU op-mode(s)***:        32-bit, 64-bit 
+
+***Address sizes***:         39 bits physical, 48 bits virtual
+
+***Byte Order***:            Little Endian 
+
+***CPU(s)***:                  8
+
+***On-line CPU(s) list***:   0-7
+
+***Vendor ID***:               GenuineIntel
+
+***Model name***:            Intel(R) Core(TM) i5-10300H CPU @ 2.50GHz
+
+***CPU family***:          6    
+
+***Model***:               165   
+
+***Thread(s) per core***:  2  
+
+***Core(s) per socket***:  4 
+
+***Socket(s)***:           1 
+
+***Stepping***:            2 
+
 
 ![image](https://github.com/user-attachments/assets/23c49b1c-f6a1-43af-8063-8638cb5d1f3f)
 
