@@ -13,9 +13,9 @@
 // Constants
 
 float gaussian[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH] = {
-    {0.0547, 0.11, 0.0547},
+    {0.07625, 0.11, 0.07625},
     {0.11, 0.255, 0.11},
-    {0.0547, 0.11, 0.0547}
+    {0.07625, 0.11, 0.07625}
 };  // https://en.wikipedia.org/wiki/Gaussian_blur
 
 // Functions
