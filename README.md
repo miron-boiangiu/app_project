@@ -1,12 +1,30 @@
 # Convolution-based image filters
 
-Boiangiu Victor-Miron
+- Boiangiu Victor-Miron
 
-Irimia Marian
+- Irimia Marian
 
 # Notes
 
 - Link to BMP library used in this project: [Github.com](https://github.com/mattflow/cbmp)
+
+
+# Description
+
+In this project, we are going to apply convolution-based filters on images, more specifically gaussian blur, and then check how different parallelization techniques affect the performance.
+
+# Temporal Complexity
+
+### Sequential
+
+The complexity of the sequential algorithm is O(N*M), where N is the width of the image and M is the height of the image. This results from calling apply_convolution_as_pos (which runs in constant time, as its for-loops go to 9 total loops at most) on each pixel of the image.
+
+# Spatial complexity
+
+### Sequential
+
+The spatial complexity is, just as the temporal one, O(N*M), as we cannot apply the convolution in-place, we have to create another array of
+pixels the size of the original image and put the resulting values from the convolution there.
 
 # Run tests:
 
@@ -46,35 +64,12 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 ***Stepping***:            2 
 
 
-![image](https://github.com/user-attachments/assets/23c49b1c-f6a1-43af-8063-8638cb5d1f3f)
+![image](https://github.com/user-attachments/assets/5f7dc54b-80e6-4260-8b35-009b1c3b966e)
+
 
 # Profiling:
 
 - Small image, 1 layer of blur :
-
-| % Time | Cumulative Seconds | Self Seconds | Calls   | Self ms/call | Total ms/call | Name                    |
-|--------|--------------------|--------------|---------|--------------|---------------|-------------------------|
-| 40.00  | 0.04               | 0.04         | 512640  | 0.00         | 0.00          | apply_convolution_at_pos |
-| 15.00  | 0.06               | 0.01         | 3075840 | 0.00         | 0.00          | _get_pixel               |
-| 15.00  | 0.07               | 0.01         | 3       | 5.00         | 10.00         | _map                    |
-| 10.00  | 0.08               | 0.01         | 512640  | 0.00         | 0.00          | get_pixel_rgb            |
-| 10.00  | 0.09               | 0.01         | 1       | 10.00        | 50.00         | apply_convolution        |
-| 10.00  | 0.10               | 0.01         | 1       | 10.00        | 30.00         | save_bmp_image           |
-
-
-- Small image, 20 layers of blur :
-  
-| % Time | Cumulative Seconds | Self Seconds | Calls   | Self ms/call | Total ms/call | Name                        |
-|--------|--------------------|--------------|---------|--------------|---------------|-----------------------------|
-| 80.21  | 0.77               | 0.77         | 10252800| 0.00         | 0.00          | apply_convolution_at_pos    |
-| 8.33   | 0.85               | 0.08         | 20      | 4.00         | 42.50         | apply_convolution           |
-| 3.12   | 0.88               | 0.03         | 1537920 | 0.00         | 0.00          | _update_file_byte_contents  |
-| 2.08   | 0.90               | 0.02         | 3075848 | 0.00         | 0.00          | _get_int_from_buffer        |
-| 2.08   | 0.92               | 0.02         | 3075840 | 0.00         | 0.00          | _get_pixel                  |
-| 1.04   | 0.93               | 0.01         | 512640  | 0.00         | 0.00          | set_pixel_rgb               |
-| 1.04   | 0.94               | 0.01         | 3       | 3.33         | 26.67         | _map                        |
-
-- Medium image, 1 layer of blur :
 
 | % Time | Cumulative Seconds | Self Seconds | Calls     | Self ms/call | Total ms/call | Name                      |
 |--------|--------------------|--------------|-----------|--------------|---------------|---------------------------|
@@ -87,7 +82,7 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 | 3.23   | 0.30               | 0.01         | 1         | 10.00        | 90.00         | save_bmp_image             |
 | 1.61   | 0.31               | 0.01         | 3         | 1.67         | 30.00         | _map                       |
 
-- Medium image, 20 layers of blur :
+- Small image, 20 layers of blur :
 
 | % Time | Cumulative Seconds | Self Seconds | Calls     | Self ms/call | Total ms/call | Name                      |
 |--------|--------------------|--------------|-----------|--------------|---------------|---------------------------|
@@ -99,6 +94,41 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 | 0.71   | 2.79               | 0.02         | 3         | 6.67         | 30.00         | _map                       |
 | 0.36   | 2.80               | 0.01         | 6535728   | 0.00         | 0.00          | _update_file_byte_contents |
 | 0.36   | 2.81               | 0.01         | 2178576   | 0.00         | 0.00          | set_pixel_rgb              |
+
+- Medium image, 1 layer of blur:
+
+| % Time | Cumulative Seconds | Self Seconds | Calls     | Self ms/Call | Total ms/Call | Function Name                     |
+|--------|--------------------|--------------|-----------|--------------|---------------|-----------------------------------|
+| 34.48  | 0.50               | 0.50         | 7,500,000 | 0.00         | 0.00          | apply_convolution_at_pos          |
+| 12.41  | 0.68               | 0.18         | 45,000,008| 0.00         | 0.00          | _get_int_from_buffer              |
+| 11.03  | 0.84               | 0.16         | 3         | 53.33        | 183.33        | _map                              |
+| 8.97   | 0.97               | 0.13         | 1         | 130.00       | 630.00        | apply_convolution                 |
+| 7.59   | 1.08               | 0.11         | 45,000,000| 0.00         | 0.00          | _get_pixel                        |
+| 7.59   | 1.19               | 0.11         | 1         | 110.00       | 516.67        | save_bmp_image                    |
+| 6.90   | 1.29               | 0.10         | 22,500,000| 0.00         | 0.00          | _update_file_byte_contents        |
+| 4.83   | 1.36               | 0.07         | 1         | 70.00        | 303.33        | open_bmp_image                    |
+| 2.76   | 1.40               | 0.04         | 7,500,000 | 0.00         | 0.00          | get_pixel_rgb                     |
+| 2.07   | 1.43               | 0.03         | 7,500,000 | 0.00         | 0.00          | set_pixel_rgb                     |
+| 0.69   | 1.44               | 0.01         | 2         | 5.00         | 5.00          | _get_file_byte_number             |
+| 0.69   | 1.45               | 0.01         | 2         | 5.00         | 188.33        | _populate_pixel_array             |
+
+- Medium image, 20 layers of blur:
+
+| % Time | Cumulative Seconds | Self Seconds | Calls     | Self ms/Call | Total ms/Call | Function Name                     |
+|--------|--------------------|--------------|-----------|--------------|---------------|-----------------------------------|
+| 76.61  | 11.27              | 11.27        | 150,000,000| 0.00         | 0.00          | apply_convolution_at_pos         |
+| 18.97  | 14.06              | 2.79         | 20        | 139.50       | 703.00        | apply_convolution                 |
+| 0.99   | 14.21              | 0.14         | 45,000,000| 0.00         | 0.00          | _get_pixel                        |
+| 0.92   | 14.34              | 0.14         | 45,000,008| 0.00         | 0.00          | _get_int_from_buffer              |
+| 0.65   | 14.44              | 0.10         | 3         | 31.67        | 135.00        | _map                              |
+| 0.54   | 14.52              | 0.08         | 7,500,000 | 0.00         | 0.00          | get_pixel_rgb                     |
+| 0.54   | 14.60              | 0.08         | 1         | 80.00        | 377.50        | save_bmp_image                    |
+| 0.34   | 14.64              | 0.05         | 1         | 50.00        | 272.50        | open_bmp_image                    |
+| 0.20   | 14.68              | 0.03         | 22,500,000| 0.00         | 0.00          | _update_file_byte_contents        |
+| 0.14   | 14.70              | 0.02         | 7,500,000 | 0.00         | 0.00          | set_pixel_rgb                     |
+| 0.07   | 14.71              | 0.01         | 2         | 5.00         | 140.00        | _populate_pixel_array             |
+| 0.03   | 14.71              | 0.01         | 2         | 2.50         | 2.50          | _get_file_byte_number             |
+
 
 - Big image, 1 layer of blur :
 
