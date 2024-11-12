@@ -15,9 +15,49 @@ In this project, we are going to apply convolution-based filters on images, more
 
 # Temporal Complexity
 
+### Pseudocode
+```
+Function apply_convolution(matrix, N, M, kernel, k_width, k_height):
+    Allocate a new matrix with the same dimensions as the original (M x N)
+    
+    For each x from 0 to N - 1:
+        For each y from 0 to M - 1:
+            Call apply_convolution_at_pos(matrix, N, M, kernel, k_width, k_height, x, y)
+            Store the returned value in new_matrix[y][x]
+    
+    For each x from 0 to N - 1:
+        For each y from 0 to M - 1:
+            Copy new_matrix[y][x] to matrix[y][x]
+
+    Free memory allocated for new_matrix
+
+
+Function apply_convolution_at_pos(matrix, N, M, kernel, k_width, k_height, pos_x, pos_y):
+    Initialize result to 0
+    Set delta_x to (k_width / 2)
+    Set delta_y to (k_height / 2)
+    
+    For each kernel_y from 0 to k_height - 1:
+        For each kernel_x from 0 to k_width - 1:
+            Calculate corresponding_matrix_x = pos_x - delta_x + kernel_x
+            Calculate corresponding_matrix_y = pos_y - delta_y + kernel_y
+
+            If corresponding_matrix_x is out of bounds (i.e., < 0 or >= N) or
+               corresponding_matrix_y is out of bounds (i.e., < 0 or >= M):
+                Return matrix[pos_y][pos_x] // Pixel is out of bounds, return original value
+            
+            Multiply kernel[kernel_y][kernel_x] by matrix[corresponding_matrix_y][corresponding_matrix_x]
+            Add the result to the total result
+
+    If result > 255:
+        Set result to 255 // Clamp the result to the valid pixel range [0, 255]
+
+    Return result
+```
+
 ### Sequential
 
-The complexity of the sequential algorithm is O(N*M), where N is the width of the image and M is the height of the image. This results from calling apply_convolution_as_pos (which runs in constant time, as its for-loops go to 9 total loops at most) on each pixel of the image.
+The complexity of the sequential algorithm is O(N*M), where N is the width of the image and M is the height of the image. This results from calling apply_convolution_as_pos (which runs in constant time, as its for-loops go to 9 total loops at most, the convolution matrix being of size 3x3) on each pixel of the image.
 
 # Spatial complexity
 
