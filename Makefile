@@ -1,12 +1,12 @@
-CC=gcc
+CC=mpicc
 CFLAGS=-I. -g
-DEPS = image_editor.h cbmp.h
+DEPS = image_editor_MPI.h cbmp.h
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-main: main.o image_editor.o cbmp.o
-	$(CC) -o main main.o image_editor.o cbmp.o
+main: main.o image_editor_MPI.o cbmp.o
+	$(CC) -o main main.o image_editor_MPI.o cbmp.o
 
 test_small:
 	./main images/small.bmp output_small.bmp 1

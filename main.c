@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <mpi.h>
 
-#include "image_editor.h"
+#include "image_editor_MPI.h"
 
 int main(int argc, char *argv[]) {
-
-    int blur_count = 1;
+    MPI_Init(&argc, &argv);
+    int blur_count = 1; 
 
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <input file> <output file>\n", argv[0]);
@@ -27,6 +28,6 @@ int main(int argc, char *argv[]) {
     
     save_bmp_image(argv[1], argv[2], &img);
     free_image(&img);
-
+    MPI_Finalize();
     return 0;
 }
