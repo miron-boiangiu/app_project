@@ -79,7 +79,6 @@ pixels the size of the original image and put the resulting values from the conv
 ``` make <test_small/test_medium/test_big> ```
 
 # Code analysis:
-The serial algorithm was tested based on image sizes and blur intensity, multiple times.
 
 ***WSL Version*** : Wsman Shell commandLine, version 0.2.1.
 
@@ -112,7 +111,15 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 ***Stepping***:            2 
 
 
+## Serial
+
+The serial algorithm was tested based on image sizes and blur intensity, multiple times.
+
 ![image](https://github.com/user-attachments/assets/5f7dc54b-80e6-4260-8b35-009b1c3b966e)
+
+## MPI
+
+![image](image.png)
 
 
 # Profiling:
