@@ -13,6 +13,14 @@
 
 In this project, we are going to apply convolution-based filters on images, more specifically gaussian blur, and then check how different parallelization techniques affect the performance.
 
+- Example input:
+
+![image](./images/big.bmp)
+
+- Example output:
+
+![image](./images/output_big.bmp)
+
 # Temporal Complexity
 
 ### Pseudocode
