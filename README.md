@@ -1,13 +1,24 @@
 # Convolution-based image filters
 
+### Students: 
+
 - Boiangiu Victor-Miron
 
 - Irimia Marian
+
+### Lab tutor: 
+
+- Calafeteanu Tudor-Alexandru 
 
 # Notes
 
 - Link to BMP library used in this project: [Github.com](https://github.com/mattflow/cbmp)
 
+# Weekly updates
+
+- Week 1 : Sequential algorithm & profiling
+
+- Week 2 : Parallel version using MPI 
 
 # Description
 
