@@ -20,6 +20,8 @@
 
 - Week 2 : Parallel version using MPI 
 
+- Week 3: Parallel version using PThreads
+
 # Description
 
 In this project, we are going to apply convolution-based filters on images, more specifically gaussian blur, and then check how different parallelization techniques affect the performance.
