@@ -132,8 +132,11 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 
 ## MPI
 
-![image](image.png)
+![image](imageMPI.png)
 
+## Pthreads
+
+![image](imagePth.png)
 
 # Profiling:
 
