@@ -1,12 +1,13 @@
-CC=gcc
-CFLAGS=-I. -g
+CC = gcc
+CFLAGS = -I. -g -pg -O0 -fno-inline -pthread
 DEPS = image_editor.h cbmp.h
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 main: main.o image_editor.o cbmp.o
-	$(CC) -o main main.o image_editor.o cbmp.o -lpthread -lm
+	$(CC) $(CFLAGS) -o main main.o image_editor.o cbmp.o -lm
+
 
 test_small:
 	./main images/small.bmp output_small.bmp 1
