@@ -22,6 +22,8 @@
 
 - Week 3: Parallel version using PThreads
 
+- Week 4 : Profilling and Graphs for MPI & Pthreads
+
 # Description
 
 In this project, we are going to apply convolution-based filters on images, more specifically gaussian blur, and then check how different parallelization techniques affect the performance.
@@ -422,3 +424,12 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 |  0.75  | 11.82             | 0.09         | 1         | 90.00          | 396.67          | open_bmp_image               |
 |  0.66  | 11.90             | 0.08         | 10000000  | 0.00           | 0.00            | get_pixel_rgb                |
 |  0.58  | 11.97             | 0.07         | 1         | 70.00          | 558.33          | save_bmp_image               |
+
+
+## Serial vs MPI vs Pthreads
+
+![image](imageSmall_VS.png)
+
+![image](imageMedium_VS.png)
+
+![image](imageBig_VS.png)
