@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -I. -g -pg -O0 -fno-inline -pthread
+CFLAGS = -I. -g -pg -fno-inline -pthread
 DEPS = image_editor.h cbmp.h
 
 %.o: %.c $(DEPS)

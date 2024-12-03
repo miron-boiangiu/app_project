@@ -1,5 +1,5 @@
 CC = mpicc
-CFLAGS = -I. -g -pg -O0 -fno-inline -fno-optimize-sibling-calls
+CFLAGS = -I. -g -pg -fno-inline -fno-optimize-sibling-calls
 DEPS = image_editor_MPI.h cbmp.h
 
 %.o: %.c $(DEPS)
