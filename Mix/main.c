@@ -8,7 +8,6 @@
 
 int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
-    printf("TEEst\n");
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -33,7 +32,6 @@ int main(int argc, char *argv[]) {
     IMAGE img;
     open_bmp_image(argv[1], &img);
 
-    printf("TEEst2\n");
     for (int i = 0; i < blur_count; i++) {
         apply_gaussian_blur(&img, thread_count);
     }

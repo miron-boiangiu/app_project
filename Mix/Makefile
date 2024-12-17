@@ -10,13 +10,13 @@ main: main.o image_editor.o cbmp.o
 
 
 test_small:
-	./main images/small.bmp output_small.bmp 1
+	mpirun -np 4 ./main images/small.bmp output.bmp 1 4
 
 test_medium:
-	./main images/medium.bmp output_medium.bmp 5
+	mpirun -np 4 ./main images/medium.bmp output.bmp 10 4
 
 test_big:
-	./main images/big.bmp output_big.bmp 10
+	mpirun -np 4 ./main images/big.bmp output.bmp 20 4
 
 clean:
 	rm *.o main

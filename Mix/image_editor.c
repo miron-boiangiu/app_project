@@ -125,6 +125,10 @@ void* thread_func(void* arg) {
     int start_index = params->mpi_start + params->thread_id * (double) (portion_height) / (params->thread_count);
     int end_index = fmin(params->mpi_end, params->mpi_start + ((params->thread_id) + 1) * (double) (portion_height) / (params->thread_count));
 
+    // This fixes the artifact lines in the output
+    // if (end_index == params->mpi_end)
+    //     end_index = fmin(params->height, end_index + 10);
+
     for (int y = start_index; y < end_index; y++) {
         for (int x = 0; x < params->width; x++) {
             (params->new_matrix)[y][x] = apply_convolution_at_pos(params->matrix, params->width, params->height, gaussian, params->k_width, params->k_height, x, y);
@@ -161,7 +165,6 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
     for (int id = 0; id < thread_count; id++) {
         thread_params* params = calloc(1, sizeof(thread_params));
 
-        printf("TEEst3\n");
         // TODO: Flyweight design pattern would work wonders here.
         params->new_matrix = new_matrix;
         params->matrix = matrix;
@@ -186,6 +189,22 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
     }
 
     // Gather all MPI data :)
+    if (rank == 0) {
+        MPI_Status recv_status;
+
+        for (int other_rank = 1; other_rank < size; other_rank++) {
+            int other_mpi_start = other_rank * (double) height / size;
+            int other_mpi_end = fmin(height, (other_rank + 1) * (double) height / size);
+
+            for (int current_pos = other_mpi_start; current_pos < other_mpi_end; current_pos++) {
+                MPI_Recv(matrix[current_pos], width, MPI_CHAR, other_rank, other_rank, MPI_COMM_WORLD, &recv_status);
+            }
+        }
+    } else {
+        for (int i = mpi_start; i < mpi_end; i++) {
+            MPI_Send(matrix[i], width, MPI_CHAR, 0, rank, MPI_COMM_WORLD);
+        }
+    }
 
     free(new_matrix);
     free(threads);
