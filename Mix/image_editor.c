@@ -115,6 +115,7 @@ typedef struct thread_params {
     float kernel[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH];
     int mpi_start;
     int mpi_end;
+    pthread_barrier_t* barrier;
 } thread_params;
 
 void* thread_func(void* arg) {
@@ -125,9 +126,12 @@ void* thread_func(void* arg) {
     int start_index = params->mpi_start + params->thread_id * (double) (portion_height) / (params->thread_count);
     int end_index = fmin(params->mpi_end, params->mpi_start + ((params->thread_id) + 1) * (double) (portion_height) / (params->thread_count));
 
-    // This fixes the artifact lines in the output
-    // if (end_index == params->mpi_end)
-    //     end_index = fmin(params->height, end_index + 10);
+    //This fixes the artifact lines in the output
+    if (start_index == params->mpi_start)
+        start_index = fmax(0, start_index - 10);
+    if (end_index == params->mpi_end)
+        end_index = fmin(params->height, end_index + 10);
+
 
     for (int y = start_index; y < end_index; y++) {
         for (int x = 0; x < params->width; x++) {
@@ -136,6 +140,8 @@ void* thread_func(void* arg) {
     }
 
     // Copy values
+    pthread_barrier_wait(params->barrier);
+
     for (int y = start_index; y < end_index; y++) {
         for (int x = 0; x < params->width; x++) {
             (params->matrix)[y][x] = (params->new_matrix)[y][x];
@@ -151,6 +157,9 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    pthread_barrier_t barrier;
+    pthread_barrier_init(&barrier, NULL, thread_count);
 
     int mpi_start = rank * (double) height / size;
     int mpi_end = fmin(height, (rank + 1) * (double) height / size);
@@ -176,6 +185,7 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
         params->thread_count = thread_count;
         params->mpi_start = mpi_start;
         params->mpi_end = mpi_end;
+        params->barrier = &barrier;
 
         pthread_create(&threads[id], NULL, thread_func, (void *)params);
     }
@@ -208,6 +218,7 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
 
     free(new_matrix);
     free(threads);
+    pthread_barrier_destroy(&barrier);
 }
 
 int apply_gaussian_blur(IMAGE* image, int thread_count) {
