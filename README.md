@@ -420,6 +420,107 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 | 0.66   | 11.90              | 0.08         | 10000000 | 0.00           | 0.00            | get_pixel_rgb               |
 | 0.58   | 11.97              | 0.07         | 1        | 70.00          | 558.33          | save_bmp_image              |
 
+## Mix (Pthreads & MPI)
+
+![image](imageMix.png)
+
+### Profiling (4 threads & 4 processes)
+
+- Small image, 1 layer of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | ms/call (self) | ms/call (total) | Name                        |
+|--------|--------------------|--------------|------------|----------------|-----------------|-----------------------------|
+| 16.67  | 0.07               | 0.07         | 13,071,456 | 0.00           | 0.00            | _get_pixel                  |
+| 14.29  | 0.13               | 0.06         | 353,020    | 0.00           | 0.00            | apply_convolution_at_pos    |
+| 14.29  | 0.19               | 0.06         | 3          | 20.00          | 65.00           | _map                        |
+| 11.90  | 0.24               | 0.05         | 2,178,576  | 0.00           | 0.00            | set_pixel_rgb               |
+| 9.52   | 0.28               | 0.04         | 2,178,576  | 0.00           | 0.00            | get_pixel_rgb               |
+| 9.52   | 0.32               | 0.04         | 1          | 40.00          | 145.00          | open_bmp_image              |
+| 8.33   | 0.35               | 0.04         | 13,071,464 | 0.00           | 0.00            | _get_int_from_buffer        |
+| 7.14   | 0.39               | 0.03         | 6,535,728  | 0.00           | 0.00            | _update_file_byte_contents  |
+| 4.76   | 0.41               | 0.02         | N/A        | N/A            | N/A             | thread_func                 |
+| 2.38   | 0.41               | 0.01         | 1          | 10.00          | 190.00          | save_bmp_image              |
+| 1.19   | 0.42               | 0.01         | N/A        | N/A            | N/A             | _throw_error                |
+| 0.00   | 0.42               | 0.00         | 2          | 0.00           | 0.00            | _get_depth                  |
+
+- Small image, 20 layers of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | ms/call (self) | ms/call (total) | Name                        |
+|--------|--------------------|--------------|------------|----------------|-----------------|-----------------------------|
+| 77.14  | 1.62               | 1.62         | 7,159,841  | 0.00           | 0.00            | apply_convolution_at_pos    |
+| 7.62   | 1.78               | 0.16         | N/A        | N/A            | N/A             | thread_func                 |
+| 4.76   | 1.88               | 0.10         | 13,071,456 | 0.00           | 0.00            | _get_pixel                  |
+| 1.90   | 1.92               | 0.04         | 13,071,464 | 0.00           | 0.00            | _get_int_from_buffer        |
+| 1.90   | 1.96               | 0.04         | 2,178,576  | 0.00           | 0.00            | set_pixel_rgb               |
+| 1.90   | 2.00               | 0.04         | 3          | 13.33          | 70.00           | _map                        |
+| 1.43   | 2.03               | 0.03         | 6,535,728  | 0.00           | 0.00            | _update_file_byte_contents  |
+| 1.19   | 2.06               | 0.03         | 2,178,576  | 0.00           | 0.00            | get_pixel_rgb               |
+| 0.95   | 2.08               | 0.02         | 1          | 20.00          | 117.50          | open_bmp_image              |
+| 0.48   | 2.08               | 0.01         | 1          | 10.00          | 192.50          | save_bmp_image              |
+| 0.24   | 2.09               | 0.01         | 2          | 2.50           | 2.50            | _get_file_byte_number       |
+| 0.24   | 2.10               | 0.01         | N/A        | N/A            | N/A             | _throw_error                |
+| 0.24   | 2.10               | 0.01         | N/A        | N/A            | N/A             | get_depth                   |
+
+- Medium image, 1 layer of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | ms/call (self) | ms/call (total) | Name                        |
+|--------|--------------------|--------------|------------|----------------|-----------------|-----------------------------|
+| 17.88  | 0.27               | 0.27         | 45,000,000 | 0.00           | 0.00            | _get_pixel                  |
+| 17.88  | 0.54               | 0.27         | 1,014,823  | 0.00           | 0.00            | apply_convolution_at_pos    |
+| 15.89  | 0.78               | 0.24         | 3          | 80.00          | 256.67          | _map                        |
+| 9.93   | 0.93               | 0.15         | 45,000,008 | 0.00           | 0.00            | _get_int_from_buffer        |
+| 9.60   | 1.07               | 0.14         | 7,500,000  | 0.00           | 0.00            | get_pixel_rgb               |
+| 8.61   | 1.21               | 0.13         | 1          | 130.00         | 735.83          | save_bmp_image              |
+| 7.28   | 1.31               | 0.11         | 22,500,000 | 0.00           | 0.00            | _update_file_byte_contents  |
+| 5.63   | 1.40               | 0.09         | 7,500,000  | 0.00           | 0.00            | set_pixel_rgb               |
+| 5.30   | 1.48               | 0.08         | 1          | 80.00          | 489.17          | open_bmp_image              |
+| 0.99   | 1.50               | 0.01         | 2          | 7.50           | 7.50            | _get_file_byte_number       |
+| 0.99   | 1.51               | 0.01         | N/A        | N/A            | N/A             | _throw_error                |
+
+- Medium image, 20 layers of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | ms/call (self) | ms/call (total) | Name                        |
+|--------|--------------------|--------------|------------|----------------|-----------------|-----------------------------|
+| 81.45  | 6.28               | 6.28         | 23,156,885 | 0.00           | 0.00            | apply_convolution_at_pos    |
+| 5.32   | 6.69               | 0.41         | N/A        | N/A            | N/A             | thread_func                 |
+| 3.24   | 6.94               | 0.25         | 3          | 83.33          | 193.33          | _map                        |
+| 2.72   | 7.15               | 0.21         | 45,000,000 | 0.00           | 0.00            | _get_pixel                  |
+| 1.82   | 7.29               | 0.14         | 1          | 140.00         | 584.17          | save_bmp_image              |
+| 1.75   | 7.42               | 0.14         | 7,500,000  | 0.00           | 0.00            | get_pixel_rgb               |
+| 1.30   | 7.53               | 0.10         | 1          | 100.00         | 430.83          | open_bmp_image              |
+| 0.91   | 7.59               | 0.07         | 45,000,008 | 0.00           | 0.00            | _get_int_from_buffer        |
+| 0.71   | 7.65               | 0.06         | 7,500,000  | 0.00           | 0.00            | set_pixel_rgb               |
+| 0.65   | 7.70               | 0.05         | 22,500,000 | 0.00           | 0.00            | _update_file_byte_contents  |
+
+- Big image, 1 layer of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | s/call (self) | s/call (total) | Name                        |
+|--------|--------------------|--------------|------------|--------------|----------------|-----------------------------|
+| 19.72  | 0.43               | 0.43         | 80,000,000 | 0.00         | 0.00           | _get_pixel                  |
+| 18.81  | 0.84               | 0.41         | 3          | 0.14         | 0.44           | _map                        |
+| 13.99  | 1.15               | 0.30         | 80,000,008 | 0.00         | 0.00           | _get_int_from_buffer        |
+| 11.01  | 1.39               | 0.24         | 841,009    | 0.00         | 0.00           | apply_convolution_at_pos    |
+| 9.17   | 1.58               | 0.20         | 1          | 0.20         | 0.75           | open_bmp_image              |
+| 8.72   | 1.77               | 0.19         | 1          | 0.19         | 1.17           | save_bmp_image              |
+| 8.03   | 1.95               | 0.17         | 40,000,000 | 0.00         | 0.00           | _update_file_byte_contents  |
+| 4.82   | 2.06               | 0.10         | 10,000,000 | 0.00         | 0.00           | get_pixel_rgb               |
+| 4.36   | 2.15               | 0.10         | 10,000,000 | 0.00         | 0.00           | set_pixel_rgb               |
+
+- Big image, 20 layers of blur :
+
+| % Time | Cumulative Seconds | Self Seconds | Calls      | ms/call (self) | ms/call (total) | Name                        |
+|--------|--------------------|--------------|------------|----------------|-----------------|-----------------------------|
+| 75.78  | 6.04               | 6.04         | 28,725,986 | 0.00           | 0.00            | apply_convolution_at_pos    |
+| 4.52   | 6.40               | 0.36         | 80,000,000 | 0.00           | 0.00            | _get_pixel                  |
+| 3.89   | 6.71               | 0.31         | 3          | 103.33         | 343.33          | _map                        |
+| 3.45   | 6.99               | 0.28         | 80,000,008 | 0.00           | 0.00            | _get_int_from_buffer        |
+| 3.39   | 7.25               | 0.27         | N/A        | N/A            | N/A             | thread_func                 |
+| 2.51   | 7.46               | 0.20         | 1          | 200.00         | 733.33          | open_bmp_image              |
+| 2.38   | 7.64               | 0.19         | 1          | 190.00         | 926.67          | save_bmp_image              |
+| 2.26   | 7.83               | 0.18         | 10,000,000 | 0.00           | 0.00            | get_pixel_rgb               |
+| 1.07   | 7.91               | 0.09         | 40,000,000 | 0.00           | 0.00            | _update_file_byte_contents  |
+
+
 ## Serial vs MPI vs Pthreads
 
 ![image](imageSmall_VS.png)
@@ -431,3 +532,5 @@ The serial algorithm was tested based on image sizes and blur intensity, multipl
 ![image](image20Blur_MPI.png)
 
 ![image](image20Blur_Pthreads.png)
+
+![image](image20Blur_Mix.png)
