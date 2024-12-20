@@ -112,6 +112,7 @@ typedef struct thread_params {
     int thread_id;
     int thread_count;
     float kernel[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH];
+    pthread_barrier_t* barrier;
 } thread_params;
 
 void* thread_func(void* arg) {
@@ -126,6 +127,8 @@ void* thread_func(void* arg) {
         }
     }
 
+    pthread_barrier_wait(params->barrier);
+
     // Copy values
     for (int y = start_index; y < end_index; y++) {
         for (int x = 0; x < params->width; x++) {
@@ -139,6 +142,9 @@ void* thread_func(void* arg) {
 
 // TODO: change kernel to float**
 void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH], int k_width, int k_height, int thread_count) {
+
+    pthread_barrier_t barrier;
+    pthread_barrier_init(&barrier, NULL, thread_count);
 
     uint8_t** new_matrix = calloc(height, sizeof(uint8_t*));
     for (unsigned int i = 0; i < height; i++) {
@@ -159,6 +165,7 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
         params->k_width = k_width;
         params->thread_id = id;
         params->thread_count = thread_count;
+        params->barrier = &barrier;
 
         pthread_create(&threads[id], NULL, thread_func, (void *)params);
     }
@@ -172,6 +179,7 @@ void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAU
     }
     free(new_matrix);
     free(threads);
+    pthread_barrier_destroy(&barrier);
 }
 
 int apply_gaussian_blur(IMAGE* image, int thread_count) {
