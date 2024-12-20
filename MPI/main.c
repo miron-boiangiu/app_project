@@ -4,14 +4,18 @@
 #include <string.h>
 #include <mpi.h>
 
-#include "image_editor_MPI.h"
+#include "image_editor.h"
 
 int main(int argc, char *argv[]) {
     MPI_Init(&argc, &argv);
-    int blur_count = 1; 
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    int blur_count = 1;
 
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <input file> <output file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input file> <output file> [blur_count]\n", argv[0]);
         return 1;
     }
 
@@ -26,8 +30,10 @@ int main(int argc, char *argv[]) {
         apply_gaussian_blur(&img);
     }
     
-    save_bmp_image(argv[1], argv[2], &img);
+    if (rank == 0)
+        save_bmp_image(argv[1], argv[2], &img);
     free_image(&img);
+
     MPI_Finalize();
     return 0;
 }

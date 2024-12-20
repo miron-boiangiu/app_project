@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <math.h>
 #include <mpi.h>
 
 #include "cbmp.h"
 
-#include "image_editor_MPI.h"
+#include "image_editor.h"
 
 #define GAUSSIAN_K_WIDTH 3
 #define GAUSSIAN_K_HEIGHT 3
@@ -101,103 +102,62 @@ uint8_t apply_convolution_at_pos(uint8_t** matrix, int width, int height, float 
     return res > 255 ? 255 : res;
 }
 
-// Helper function to calculate start and end rows for each process
-int calculate_start_row(int rank, int base_rows, int extra_rows) {
-    return rank * base_rows + (rank < extra_rows ? rank : extra_rows);
-}
-
-int calculate_rows_to_process(int rank, int base_rows, int extra_rows) {
-    return base_rows + (rank < extra_rows ? 1 : 0);
-}
-
 // TODO: change kernel to float**
-void apply_convolution(
-    uint8_t** matrix,
-    int width,
-    int height,
-    float kernel[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH],
-    int k_width,
-    int k_height
-) {
+void apply_convolution(uint8_t** matrix, int width, int height, float kernel[GAUSSIAN_K_HEIGHT][GAUSSIAN_K_WIDTH], int k_width, int k_height) {
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    // Calculate base number of rows and extra rows
+    int mpi_start = rank * (double) height / size;
+    int mpi_end = fmin(height, (rank + 1) * (double) height / size);
 
-    int base_rows = height / size;
-    int extra_rows = height % size;
+    uint8_t** new_matrix = calloc(height, sizeof(uint8_t*));
+    for (unsigned int i = 0; i < height; i++) {
+        new_matrix[i] = calloc(width, sizeof(uint8_t));
+    }
 
-    // Determine start row and number of rows to process for this rank
-    int start_row = calculate_start_row(rank, base_rows, extra_rows);
-    int rows_to_process = calculate_rows_to_process(rank, base_rows, extra_rows);
+    int start_index = mpi_start;  // Computational start
+    int end_index = mpi_end;
 
-    // Allocate memory for local results
-    uint8_t* local_result = malloc(rows_to_process * width * sizeof(uint8_t));
+    start_index = fmax(0, start_index - 10);
+    end_index = fmin(height, end_index + 10);
 
-    // Perform convolution on assigned rows
-    for (int i = 0; i < rows_to_process; i++) {
-        int y = start_row + i;
+    for (int y = start_index; y < end_index; y++) {
         for (int x = 0; x < width; x++) {
-            local_result[i * width + x] = apply_convolution_at_pos(
-                matrix,
-                width,
-                height,
-                kernel,
-                k_width,
-                k_height,
-                x,
-                y
-            );
+            (new_matrix)[y][x] = apply_convolution_at_pos(matrix, width, height, gaussian, k_width, k_height, x, y);
         }
     }
 
-    // Prepare to gather results at root process
-    uint8_t* recvbuf = NULL;
-    int* recvcounts = NULL;
-    int* displs = NULL;
+    for (int y = start_index; y < end_index; y++) {
+        for (int x = 0; x < width; x++) {
+            (matrix)[y][x] = (new_matrix)[y][x];
+        }
+    }
+
+    for (unsigned int i = 0; i < height; i++) {
+        free(new_matrix[i]);
+    }
+
+    // Gather all MPI data :)
     if (rank == 0) {
-        recvbuf = malloc(height * width * sizeof(uint8_t));
-        recvcounts = malloc(size * sizeof(int));
-        displs = malloc(size * sizeof(int));
+        MPI_Status recv_status;
 
-        int offset = 0;
-        for (int i = 0; i < size; i++) {
-            int rows = calculate_rows_to_process(i, base_rows, extra_rows);
-            recvcounts[i] = rows * width;
-            displs[i] = offset;
-            offset += recvcounts[i];
+        for (int other_rank = 1; other_rank < size; other_rank++) {
+            int other_mpi_start = other_rank * (double) height / size;
+            int other_mpi_end = fmin(height, (other_rank + 1) * (double) height / size);
+
+            for (int current_pos = other_mpi_start; current_pos < other_mpi_end; current_pos++) {
+                MPI_Recv(matrix[current_pos], width, MPI_CHAR, other_rank, other_rank, MPI_COMM_WORLD, &recv_status);
+            }
+        }
+    } else {
+        for (int i = mpi_start; i < mpi_end; i++) {
+            MPI_Send(matrix[i], width, MPI_CHAR, 0, rank, MPI_COMM_WORLD);
         }
     }
 
-    // Gather the local results to the root process
-    MPI_Gatherv(
-        local_result,
-        rows_to_process * width,
-        MPI_UNSIGNED_CHAR,
-        recvbuf,
-        recvcounts,
-        displs,
-        MPI_UNSIGNED_CHAR,
-        0,
-        MPI_COMM_WORLD
-    );
-
-    // Root process reconstructs the full matrix
-    if (rank == 0) {
-        for (int i = 0; i < height; i++) {
-            memcpy(matrix[i], recvbuf + i * width, width * sizeof(uint8_t));
-        }
-        // Free root-specific memory
-        free(recvbuf);
-        free(recvcounts);
-        free(displs);
-    }
-
-    // Free local memory
-    free(local_result);
+    free(new_matrix);
 }
-
 
 int apply_gaussian_blur(IMAGE* image) {
     apply_convolution(image->pixel_grid, image->width, image->height, gaussian, GAUSSIAN_K_WIDTH, GAUSSIAN_K_HEIGHT);

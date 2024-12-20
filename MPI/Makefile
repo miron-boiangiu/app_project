@@ -1,22 +1,22 @@
 CC = mpicc
-CFLAGS = -I. -g -pg -fno-inline -fno-optimize-sibling-calls
-DEPS = image_editor_MPI.h cbmp.h
+CFLAGS = -I. -g -pg -fno-inline -pthread
+DEPS = image_editor.h cbmp.h
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-main: main.o image_editor_MPI.o cbmp.o
-	$(CC) $(CFLAGS) -o main main.o image_editor_MPI.o cbmp.o
+main: main.o image_editor.o cbmp.o
+	$(CC) $(CFLAGS) -o main main.o image_editor.o cbmp.o -lm
 
 
 test_small:
-	./main images/small.bmp output_small.bmp 1
+	mpirun -np 4 ./main images/small.bmp output.bmp 1
 
 test_medium:
-	./main images/medium.bmp output_medium.bmp 5
+	mpirun -np 4 ./main images/medium.bmp output.bmp 10
 
 test_big:
-	./main images/big.bmp output_big.bmp 10
+	mpirun -np 4 ./main images/big.bmp output.bmp 20
 
 clean:
 	rm *.o main
