@@ -13,10 +13,10 @@ test_small:
 	mpirun -np 4 ./main images/small.bmp output.bmp 1
 
 test_medium:
-	mpirun -np 4 ./main images/medium.bmp output.bmp 10
+	mpirun -np 4 ./main images/medium.bmp output.bmp 5
 
 test_big:
-	mpirun -np 4 ./main images/big.bmp output.bmp 20
+	mpirun -np 4 ./main images/big.bmp output.bmp 10
 
 clean:
 	rm *.o main
