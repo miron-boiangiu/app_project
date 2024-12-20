@@ -1,5 +1,5 @@
 CC = mpicc
-CFLAGS = -I. -g -pg -fno-inline -pthread
+CFLAGS = -I. -g -pthread
 DEPS = image_editor.h cbmp.h
 
 %.o: %.c $(DEPS)
